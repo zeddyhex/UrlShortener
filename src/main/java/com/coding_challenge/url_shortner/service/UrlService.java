@@ -48,7 +48,7 @@ public class UrlService {
     private String generateUniqueShortCode() {
         String code;
         do {
-            code = UUID.randomUUID().toString().substring(0, 8); ;
+            code = UUID.randomUUID().toString().substring(0, 8);
         } while (urlMappingRepository.findByShortenUrlCode(code).isPresent());
         return code;
     }
