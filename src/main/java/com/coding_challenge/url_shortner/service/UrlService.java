@@ -4,45 +4,48 @@ import com.coding_challenge.url_shortner.dto.ShortenUrlCreateRequest;
 import com.coding_challenge.url_shortner.dto.ShortenUrlResponse;
 import com.coding_challenge.url_shortner.model.UrlMapping;
 import com.coding_challenge.url_shortner.repository.UrlMappingRepository;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class UrlService {
+    @Value("${homeURL}")
+    private String homeBaseURL;
+
     public final UrlMappingRepository urlMappingRepository;
 
     public List<UrlMapping> getUrlStats(){
         return urlMappingRepository.findAll();
     }
 
-    public UrlMapping createOrGetShortUrl(ShortenUrlCreateRequest request) {
+    public ShortenUrlResponse createOrGetShortUrl(ShortenUrlCreateRequest request) {
         String originalUrl = request.getOriginalUrl();
         Optional<UrlMapping> existing = urlMappingRepository.findByOriginalUrl(originalUrl);
         if(existing.isPresent()){
             UrlMapping urlMapping = existing.get();
-            urlMapping.setCreateRequestCount(urlMapping.getCreateRequestCount() + 1);
-            return urlMappingRepository.save(urlMapping);
+            urlMapping.incrementCreationRequestCount();
+            return mapEntityToDto(urlMappingRepository.save(urlMapping));
         }
 
         String shortCode = generateUniqueShortCode();
         UrlMapping newUrlMapping = new UrlMapping();
         newUrlMapping.setOriginalUrl(originalUrl);
         newUrlMapping.setShortenUrlCode(shortCode);
-        return urlMappingRepository.save(newUrlMapping);
+        return mapEntityToDto(urlMappingRepository.save(newUrlMapping));
     }
 
-    public UrlMapping getByShortenUrlCode(String shortCode) {
+    public ShortenUrlResponse getByShortenUrlCode(String shortCode) {
         UrlMapping urlMapping = urlMappingRepository.findByShortenUrlCode(shortCode)
                 .orElseThrow(() -> new RuntimeException("Short URL not found"));
 
-        urlMapping.setVisitCount(urlMapping.getVisitCount() + 1);
-        return urlMappingRepository.save(urlMapping);
+        urlMapping.incrementVisitCount();
+        return mapEntityToDto(urlMappingRepository.save(urlMapping));
     }
 
     private String generateUniqueShortCode() {
@@ -53,11 +56,12 @@ public class UrlService {
         return code;
     }
 
-    public ShortenUrlResponse mapEntityToDto(UrlMapping urlMapping){
-        String homeURL = ServletUriComponentsBuilder.fromCurrentContextPath().toUriString();
+    private ShortenUrlResponse mapEntityToDto(UrlMapping urlMapping){
+        // for getting homeBaseUrl from Context
+        // String homeURL = ServletUriComponentsBuilder.fromCurrentContextPath().toUriString();
         return ShortenUrlResponse.builder()
                 .originalUrl(urlMapping.getOriginalUrl())
-                .shortUrl(homeURL + "/" + urlMapping.getShortenUrlCode())
+                .shortUrl(homeBaseURL + "/" + urlMapping.getShortenUrlCode())
                 .visitCount(urlMapping.getVisitCount())
                 .createRequestCount(urlMapping.getCreateRequestCount())
                 .build();

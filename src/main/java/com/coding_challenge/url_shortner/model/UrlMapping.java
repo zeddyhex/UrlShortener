@@ -1,13 +1,14 @@
 package com.coding_challenge.url_shortner.model;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 
 @Entity
-@Getter
-@Setter
+@Data
+@Builder (toBuilder = true)
+@AllArgsConstructor
+@NoArgsConstructor
 public class UrlMapping {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,5 +26,11 @@ public class UrlMapping {
     @Column
     private int createRequestCount = 1;
 
+    public void incrementCreationRequestCount(){
+        createRequestCount++;
+    }
 
+    public void incrementVisitCount(){
+        visitCount++;
+    }
 }

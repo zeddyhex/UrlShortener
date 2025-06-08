@@ -1,12 +1,17 @@
 package com.coding_challenge.url_shortner.dto;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import jakarta.validation.constraints.NotBlank;
+import lombok.*;
+import org.hibernate.validator.constraints.URL;
+
 
 @Builder
-@Getter
-@Setter
+@Data
+@AllArgsConstructor
 public class ShortenUrlCreateRequest {
+
+    @NotBlank(message = "Original URL must not be blank")
+    @URL(message = "Original URL must be a valid URL")
     private String originalUrl;
+
 }
