@@ -1,12 +1,10 @@
 package com.coding_challenge.url_shortner.dto;
 
 import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
 @Builder
-@Getter
-@Setter
+@Data
 public class ShortenUrlResponse {
     private String originalUrl;
     private String shortUrl;

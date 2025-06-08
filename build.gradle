@@ -23,16 +23,31 @@ repositories {
 	mavenCentral()
 }
 
+def mockitoAgent = configurations.create('mockitoAgent')
+
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation("com.mysql:mysql-connector-j:8.1.0")
+
+	implementation("org.hibernate:hibernate-validator:8.0.2.Final")
+
 	compileOnly 'org.projectlombok:lombok'
+
 	annotationProcessor 'org.projectlombok:lombok'
+
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation("junit:junit:4.13.2")
+	testImplementation"org.assertj:assertj-core:3.27.3"
+	testImplementation("com.h2database:h2:2.3.232")
+
+	add('mockitoAgent', 'org.mockito:mockito-core:5.18.0')
+
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
 tasks.named('test') {
 	useJUnitPlatform()
+	jvmArgs "-javaagent:${configurations.mockitoAgent.files.first()}"
+	jvmArgs "-Xshare:off"
 }

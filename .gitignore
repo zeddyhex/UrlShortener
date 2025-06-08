@@ -35,3 +35,8 @@ out/
 
 ### VS Code ###
 .vscode/
+
+# Ignore application-local.properties and application-local.yml in resources
+src/main/resources/application-local.properties
+src/main/resources/application-local.yml
+
